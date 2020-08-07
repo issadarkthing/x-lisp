@@ -1,20 +1,12 @@
-(prog
+(prog ; this is begin
 
-  (defun adder (# a b c)
-	(+ a b c))
+	; this is a comment
+	(defun name (# person)
+	  (print person))
 
-  (print 
-	(adder 10 1 12))
-
-
-  ; (print (prog (setq a 10 b 1) 
-		 ; (+ a b)))
+	(name "jiman terra") ; this is function invocation
 
 )
-
-
-
-
 
 
 
