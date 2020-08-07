@@ -1,8 +1,77 @@
 const fs = require("fs")
-const { Fn, Kind, println, evalAst } = require("./main")
 
-const content = fs.readFileSync("./test.lsp", { encoding: "utf8" })
+// function type 
+// closure
+class Fn {
+	constructor(name) {
+		this.name = name
+		this.args = []
+		this.parent
+		this.vars = {}
+	}
+}
 
+// primitive type
+class Kind {
+	constructor(data) {
+		this.type = this.identifyType(data)
+		this.data = this.castType(data)
+	}
+
+	identifyType(data) {
+	
+		if (isNumeric(data)) {
+			return "number"
+		} else if (isString(data)) {
+			return "string"
+		} else if (data === "nil" || data == undefined) {
+			return "nil"
+		} else if (data === "true" || data === "false") {
+			return "bool"
+		} else if (isValidVarName(data)) {
+			return "variable"
+		} else if (Array.isArray(data)) {
+			return "cons"
+		}
+	}
+
+	castType(data) {
+
+		switch (this.type) {
+			case "number":
+				return Number(data)
+			case "string":
+				return data.replace(/"/g, "")
+			case "nil":
+				return "nil"
+			default:
+				return data
+		}
+
+	}
+
+	show() {
+		return this.type === "cons" ? 
+			"(" + this.data.map(x => x.data) + ")" : this.data
+	}
+
+}
+
+function isWhiteSpace(str) {
+	return /\s+/.test(str)
+}
+
+function isNumeric(num) {
+  return !isNaN(num)
+}
+
+function isString(str) {
+	return /".*"/.test(str)
+}
+
+function isValidVarName(str) {
+	return /^[a-zA-Z]([0-9]|[a-zA-Z])*/.test(str)
+}
 
 function removeComment(str) {
 	return str.replace(/;.*/g, "")
@@ -81,6 +150,4 @@ function ast(str) {
 	return root
 }
 
-const tree = ast(content)
-println(tree)
-// evalAst(tree)
+module.exports = { ast, Fn, Kind }
