@@ -1,99 +1,127 @@
-const fs = require("fs")
 
 // function type 
 // closure
-class Fn {
-	constructor(name) {
+export class Fn {
+
+	name: string | undefined
+	args: Array<Fn | Kind>
+	parent: Fn | undefined
+	vars: Map<string, Kind | Fn>
+
+	constructor(name?: string) {
 		this.name = name
 		this.args = []
 		this.parent
-		this.vars = {}
+		this.vars = new Map()
 	}
 }
 
+type Primitives = "number" | "string" | "nil" | "bool" | "identifier" | "cons"
+type InternalTypes = string | number | Kind[] | undefined
+
 // primitive type
-class Kind {
-	constructor(data) {
+export class Kind {
+
+	type: Primitives
+	data: InternalTypes
+
+	constructor(data: InternalTypes) {
 		this.type = this.identifyType(data)
 		this.data = this.castType(data)
 	}
 
-	identifyType(data) {
-	
-		if (isNumeric(data)) {
+	identifyType(data: InternalTypes) {
+
+		if (Array.isArray(data)) {
+			return "cons"
+		} else if (data == undefined || data == "nil") {
+			return "nil"
+		} else if (isNumeric(data)) {
 			return "number"
 		} else if (isString(data)) {
 			return "string"
-		} else if (data === "nil" || data == undefined) {
-			return "nil"
 		} else if (data === "true" || data === "false") {
 			return "bool"
 		} else if (isValidVarName(data)) {
-			return "variable"
-		} else if (Array.isArray(data)) {
-			return "cons"
+			return "identifier"
+		} else {
+			throw Error("invalid type")
 		}
 	}
 
-	castType(data) {
+	castType(data: InternalTypes) {
 
 		switch (this.type) {
 			case "number":
 				return Number(data)
 			case "string":
-				return data.replace(/"/g, "")
+				return typeof data === "string" ? data.replace(/"/g, "") : ""
 			case "nil":
 				return "nil"
+			case "cons":
+				if (!Array.isArray(data)) return;
+				return data.map((x: any) => new Kind(x))
 			default:
 				return data
 		}
 
 	}
 
-	show() {
-		return this.type === "cons" ? 
-			"(" + this.data.map(x => x.type === "cons" ? x.show() : x.data) + ")" : this.data
+	show(): string {
+
+		if (this.data == undefined) 
+			return "nil"
+
+		if (!Array.isArray(this.data)) {
+			return this.data.toString()
+		} 
+
+		return	"(" + this.data
+			.map(x => x.show()) + ")"
 	}
 
 }
 
-function isWhiteSpace(str) {
+function isWhiteSpace(str: string) {
 	return /\s+/.test(str)
 }
 
-function isNumeric(value) {
-  return /^-{0,1}\d+$/.test(value)
+function isNumeric(value: string | number) {
+	if (typeof value === "number") return true;
+	return /^-{0,1}\d+$/.test(value)
 }
 
-function isString(str) {
-	return /".*"/.test(str)
+function isString(value: string | number) {
+	if (typeof value === "number") return false;
+	return /".*"/.test(value)
 }
 
-function isValidVarName(str) {
-	return /^[a-zA-Z]([0-9]|[a-zA-Z])*/.test(str)
+function isValidVarName(str: string | number) {
+	if (typeof str === "number") return false;
+	return /^[a-zA-Z]([0-9]|[a-zA-Z]|-)*[^-]$/.test(str)
 }
 
-function removeComment(str) {
+function removeComment(str: string) {
 	return str.replace(/;.*/g, "")
 }
 
-function addSpaces(str) {
+function addSpaces(str: string) {
 	return str.replace(/\(/g, " ( ").replace(/\)/g, " ) ").trim()
 }
 
-function removeSpaces(str) {
+function removeSpaces(str: string) {
 	return str.replace(/\s+/g, " ")
 }
 
-function tokenizer(content) {
+function tokenizer(content: string) {
 	return removeSpaces(addSpaces(removeComment(content)))
 }
 
-function isBalancedQuote(str) {
+function isBalancedQuote(str: string) {
 	return /".*"/.test(str)
 }
 
-function ast(str) {
+export function ast(str: string) {
 
 	const root = new Fn("root")
 	const tokens = tokenizer(str).split(" ")
@@ -132,17 +160,17 @@ function ast(str) {
 
 		} else if (v === ")") {
 			
-			if (currNode.args.length === 1 && currNode.args[0].data !== "prog") {
-				currNode.name = "id"
-			} else {
-				currNode.name = currNode.args[0].data
-				currNode.args.shift()
+			const parent = currNode.parent
+			if (parent != undefined) {
+				currNode.parent = parent
 			}
 
-			currNode = currNode.parent
-
 		} else {
-			currNode.args.push(new Kind(v))
+			if (currNode.args.length === 0) {
+				currNode.name = v
+			} else {
+				currNode.args.push(new Kind(v))
+			}
 		}
 
 	})
@@ -150,4 +178,3 @@ function ast(str) {
 	return root
 }
 
-module.exports = { ast, Fn, Kind }
