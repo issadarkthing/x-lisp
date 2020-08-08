@@ -94,6 +94,9 @@ function evalAst(ast) {
 		case "cdr":
 			return lispEval.cdr(args.slice(0, 1))
 
+		case "while":
+			return lispEval.while(args.slice(0, 2))
+
 		default:
 			return lispEval.fnSymbol(args)			
 	}
@@ -146,6 +149,8 @@ class Evaluator {
 
 		return values
 	}
+
+
 
 	add(val) {
 		const values = this.evalArgs(val)
@@ -242,7 +247,19 @@ class Evaluator {
 
 	// id function takes one argument and returns first arg
 	id(val) {
-		return val[0]
+
+		// first argument of id function
+		const s = val[0]
+
+		// console.log(s)
+		if (s.type === "variable")
+			return this.evalVariable(s)
+
+		// except for cons function that takes no arg which returns empty cons
+		if (s.data === "#" || s.data === "cons") 
+			return new Kind([])
+
+		return s
 	}
 
 	set(val) {
@@ -290,7 +307,24 @@ class Evaluator {
 		this.scope.parent.vars[fnName] = progCons
 	}
 
-	// finds function symbol
+	// accepts Kind
+	evalVariable(val) {
+
+		const name = val.data
+		let env = this.scope
+		let value = env.vars[name]
+
+		while (value == undefined) {
+			if (env.parent == undefined)
+				break;
+			env = env.parent
+			value = env.vars[name]
+		}
+
+		return new Kind(value)
+	}
+
+	// finds function or variable symbol
 	fnSymbol(val) {
 
 		const name = this.scope.name
@@ -298,17 +332,48 @@ class Evaluator {
 		let fn = env.vars[name]
 
 		while (fn == undefined) {
-			env = env.parent
-			if (env == undefined)
+			if (env.parent == undefined)
 				break;
+			env = env.parent
 			fn = env.vars[name]
 		}
 
+		// if its a variable
+		if (!(fn instanceof Fn)) {
+			const evaledArg = this.evalArgs(val)
+			env.vars[name] = evaledArg[0].data
+			return evaledArg
+		}
+
+		// bind the value to the variable set by the defun
+		//
+		// definition:
+		// (defun a (# b c)
+		//		(print b c))
+		//	
+		//	calling the function:
+		//	(a 1 2)
+		//
+		//	translates into:
+		//	(prog
+		//		(set b 1 c 2)
+		//		(print b c))
 		const setq = fn.args[0]
 		const vals = val.flat()
 		setq.args = combine(setq.args, vals)
 
 		return evalAst(fn)
+	}
+
+	while(vals) {
+		const [pred, body] = vals
+		let cp = evalAst(pred) // predicate
+		let cb = body          // loop body
+		while(cp.data === "true") {
+			cb = evalAst(body)
+			cp = evalAst(pred)
+		}
+		return cb
 	}
 }
 

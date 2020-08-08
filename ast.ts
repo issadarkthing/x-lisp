@@ -52,7 +52,7 @@ class Kind {
 
 	show() {
 		return this.type === "cons" ? 
-			"(" + this.data.map(x => x.data) + ")" : this.data
+			"(" + this.data.map(x => x.type === "cons" ? x.show() : x.data) + ")" : this.data
 	}
 
 }
@@ -61,8 +61,8 @@ function isWhiteSpace(str) {
 	return /\s+/.test(str)
 }
 
-function isNumeric(num) {
-  return !isNaN(num)
+function isNumeric(value) {
+  return /^-{0,1}\d+$/.test(value)
 }
 
 function isString(str) {
