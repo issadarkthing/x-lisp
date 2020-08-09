@@ -1,6 +1,8 @@
+import {InvalidTypeError} from "./error.ts"
 
-// function type 
+
 // closure
+// Function type
 export class Fn {
 
 	name: string | undefined
@@ -14,10 +16,16 @@ export class Fn {
 		this.parent
 		this.vars = new Map()
 	}
+
+	show() {
+		return this.toString()
+	}
 }
 
 type Primitives = "number" | "string" | "nil" | "bool" | "identifier" | "cons"
-type InternalTypes = string | number | Kind[] | undefined
+type InputTypes = string | number | Kind[] | undefined
+type InternalTypes = Omit<InputTypes, "undefined">
+
 
 // primitive type
 export class Kind {
@@ -25,12 +33,12 @@ export class Kind {
 	type: Primitives
 	data: InternalTypes
 
-	constructor(data: InternalTypes) {
+	constructor(data: InputTypes) {
 		this.type = this.identifyType(data)
 		this.data = this.castType(data)
 	}
 
-	identifyType(data: InternalTypes) {
+	identifyType(data: InputTypes) {
 
 		if (Array.isArray(data)) {
 			return "cons"
@@ -49,7 +57,7 @@ export class Kind {
 		}
 	}
 
-	castType(data: InternalTypes) {
+	castType(data: InputTypes): InternalTypes {
 
 		switch (this.type) {
 			case "number":
@@ -59,9 +67,12 @@ export class Kind {
 			case "nil":
 				return "nil"
 			case "cons":
-				if (!Array.isArray(data)) return;
+				if (!Array.isArray(data)) 
+					throw new Error("Unable to construct cons");
 				return data.map((x: any) => new Kind(x))
 			default:
+				if (data == undefined)
+					throw new Error("Invalid type")
 				return data
 		}
 
@@ -96,9 +107,9 @@ function isString(value: string | number) {
 	return /".*"/.test(value)
 }
 
-function isValidVarName(str: string | number) {
+export function isValidVarName(str: string | number) {
 	if (typeof str === "number") return false;
-	return /^[a-zA-Z]([0-9]|[a-zA-Z]|-)*[^-]$/.test(str)
+	return /^[a-zA-Z_][\w\d]*$/.test(str)
 }
 
 function removeComment(str: string) {
@@ -159,14 +170,16 @@ export function ast(str: string) {
 			currNode = node
 
 		} else if (v === ")") {
-			
+
 			const parent = currNode.parent
+			
 			if (parent != undefined) {
-				currNode.parent = parent
+				currNode = parent
 			}
 
 		} else {
-			if (currNode.args.length === 0) {
+
+			if (currNode.name == undefined) {
 				currNode.name = v
 			} else {
 				currNode.args.push(new Kind(v))
