@@ -10,15 +10,10 @@
 (defun fact (# a)
   (if (eq a 0)
 	(id 1)
-	(prog
-	  (set newVar (- a 1))
-	  (print a)
-	  (set res (mul a (fact newVar)))
-	  (print a)
-	  (id res))))
+	(* a (fact (- a 1)))))
 
 
-(set b (fact 1))
+(set b (fact 15))
 (print (id "=>") b)
 
 

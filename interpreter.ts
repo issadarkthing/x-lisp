@@ -1,5 +1,6 @@
 import { Fn, Kind, isValidVarName } from "./ast.ts"
 import { InvalidTypeError } from "./error.ts"
+import cloneDeep from "https://raw.githubusercontent.com/lodash/lodash/master/cloneDeep.js"
 
 export function println<T>(value: T) {
 	console.log(Deno.inspect(value, { depth: Infinity }))
@@ -532,8 +533,8 @@ class Evaluator {
 
 		// get identifiers
 		const setKinds = (fnArgs.args as Kind[])
-		const vals = this.evalArgs(val)
 
+		const vals = this.evalArgs(val)
 		if (vals.some(x => x instanceof Fn))
 			throw new InvalidTypeError("Kind", "Fn");
 
@@ -544,9 +545,8 @@ class Evaluator {
 		// E.g: (# a 1 b 2)
 		fnArgs.args = (combine(setKinds, arrKinds) as Kind[])
 
-		fn.parent = this.scope.parent
-		
-		// console.log(Deno.inspect(fn, { depth: 3 }))
+		fn.args = cloneDeep(fn.args)
+		// fn.parent = this.scope.parent
 
 
 		return evalAst(fn)
