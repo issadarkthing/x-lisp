@@ -66,8 +66,8 @@ cons.
 argument must be an `Fn` that returns a bool `Kind`.
 ```lisp
 (if (< 10 11)
-	("so truee")
-	("so wrong"))
+	(id "so truee")
+	(id "so wrong"))
 ```
 
 
