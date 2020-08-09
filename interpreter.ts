@@ -169,6 +169,7 @@ class Evaluator {
 						if (value == undefined || value instanceof Fn)
 							throw Error("Missing identifier");
 
+
 						return value
 					}
 
@@ -201,6 +202,7 @@ class Evaluator {
 		}
 
 
+		debugger
 		const evaledArgs = this.evalArgs(val)
 
 		for (const x of evaledArgs) {
@@ -330,6 +332,10 @@ class Evaluator {
 
 			const symbol = key.data
 			if (typeof symbol === "string" && isValidVarName(symbol)) {
+				// console.log(parent.vars.get(symbol), evaledValue)
+				// if (!parent.vars.has(symbol)) {
+				// 	parent.vars.set(symbol, evaledValue)
+				// }
 				parent.vars.set(symbol, evaledValue)
 			}
 		})
@@ -383,7 +389,7 @@ class Evaluator {
 		if (firstArg instanceof Fn)
 			throw new InvalidTypeError("Kind", "Fn")
 
-		
+		// new function identifier	
 		const fnName = firstArg.data
 
 		if (typeof fnName !== "string")
@@ -391,13 +397,17 @@ class Evaluator {
 
 		if (!isValidVarName(fnName))
 			throw new Error("Invalid identifier name")
-
+		
+		// new function arguments
 		const fnArgs = secondArg.args
+		// new function body
 		const fnBody = thirdArg
 
 
+		// set variable for arguments
 		const setqCons = new Fn("set")
 		setqCons.args = fnArgs
+		// create new scope for defined function
 		const progCons = new Fn("prog")
 		progCons.args.push(setqCons, fnBody)
 
@@ -405,10 +415,29 @@ class Evaluator {
 		if (parent == undefined)
 			throw new Error("Parent scope not found");
 
+
+		// TODO: recursive function should have a parent set to outer scope
+		// recursive function has the same parent as the base function
 		progCons.parent = parent
 		fnBody.parent = progCons
 		setqCons.parent = progCons
 		parent.vars.set(fnName, progCons)
+
+
+		// TODO: replace recursive function parent with the actual parent
+		const recursiveFn = (x: Fn) => {
+			x.args.forEach((v) => {
+				if (v instanceof Fn) {
+					if (v.name === "fact") {
+						console.log(v.vars)
+					}
+					recursiveFn(v)
+				}
+			})
+		}
+
+		// recursiveFn(fnBody)
+
 		return new Kind("prog")
 	}
 
@@ -490,22 +519,35 @@ class Evaluator {
 		//	(prog
 		//		(set b 1 c 2)
 		//		(print b c))
-		
-		const set = fn.args[0]
+		//
 
-		if (set instanceof Kind)
+		// TODO
+		// clue: the values passed to the argument change the parent variable
+		
+		// passed arguments
+		const fnArgs = fn.args[0]
+
+		if (fnArgs instanceof Kind)
 			throw new InvalidTypeError("Fn", "Kind");
 
-		const setKinds = (set.args as Kind[])
-
+		// get identifiers
+		const setKinds = (fnArgs.args as Kind[])
 		const vals = this.evalArgs(val)
 
 		if (vals.some(x => x instanceof Fn))
 			throw new InvalidTypeError("Kind", "Fn");
 
+		// get evaluated passed arguments
 		const arrKinds = (vals as Kind[])
 
-		set.args = (combine(setKinds, arrKinds) as Kind[])
+		// set variables with evaluated arguments
+		// E.g: (# a 1 b 2)
+		fnArgs.args = (combine(setKinds, arrKinds) as Kind[])
+
+		fn.parent = this.scope.parent
+		
+		// console.log(Deno.inspect(fn, { depth: 3 }))
+
 
 		return evalAst(fn)
 	}
