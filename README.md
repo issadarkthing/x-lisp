@@ -40,7 +40,7 @@ cons.
 |   function      |  description               |
 | -------------   | ------------               |
 | ```(and a b)``` | and `&&`                   |
-| ```(or a b)```  | or `||`                    |
+| ```(or a b)```  | or `\|\|`                  |
 | ```(eq a b)```  | equal `==`                 |
 | ```(ne a b)```  | not equal `!=`             |
 | ```(gt a b)```  | greater then `>`           |
