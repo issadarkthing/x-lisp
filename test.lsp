@@ -1,11 +1,7 @@
-
-; (prog
-;   (set a 12)
-;   (prog 
-; 	(set a 14)
-; 	(print a))
-;   (print a))
-
+(defun fib (# x)
+  (if (<= x 1)
+	(id 1)
+	(+ (fib (- x 1)) (fib (- x 2)))))
 
 (defun fact (# a)
   (if (eq a 0)
@@ -13,7 +9,7 @@
 	(* a (fact (- a 1)))))
 
 
-(set b (fact 15))
+(set b (fib 12))
 (print (id "=>") b)
 
 

@@ -1,6 +1,7 @@
 import { Fn, Kind, isValidVarName } from "./ast.ts"
 import { InvalidTypeError } from "./error.ts"
 import cloneDeep from "https://raw.githubusercontent.com/lodash/lodash/master/cloneDeep.js"
+import { deepCloneSync } from "https://cdn.jsdelivr.net/gh/motss/deno_mod@v0.10.0/deep_clone/mod.ts"
 
 export function println<T>(value: T) {
 	console.log(Deno.inspect(value, { depth: Infinity }))
@@ -510,6 +511,7 @@ class Evaluator {
 		// clue: the values passed to the argument change the parent variable
 		
 		// symbols of the defined function
+
 		const fnArgs = fn.args[0]
 
 		if (fnArgs instanceof Kind)
@@ -530,7 +532,10 @@ class Evaluator {
 		// E.g: (# a 1 b 2)
 		fnArgs.args = (combine(setKinds, arrKinds) as Kind[])
 
-		fn.args = cloneDeep(fn.args)
+		fn.args = (deepCloneSync<Array<Fn | Kind>>(fn.args, { absolute: true }) as Array<Fn | Kind>)
+		// fn = clone<Fn>(fn)
+		// fn.args = clone<Array<Fn | Kind>>(fn.args)
+		// fn.vars = clone<Map<string, Fn | Kind>>(fn.vars)
 		// fn.parent = this.scope.parent
 
 
@@ -562,7 +567,6 @@ class Evaluator {
 
 
 function combine<T, U>(arr1: T[], arr2: U[]) {
-
 	const main = arr1.slice(0, arr2.length)
 
 	const res: unknown[] = []
@@ -575,7 +579,6 @@ function combine<T, U>(arr1: T[], arr2: U[]) {
 }
 
 function chunk<T>(arr: T[]) {
-
 	const chunks = []
 	const n = arr.length
 	let i = 0
@@ -587,3 +590,9 @@ function chunk<T>(arr: T[]) {
 	return chunks;
 }
 
+function clone<T>(instance: T): T {
+	// @ts-ignore
+    const copy = new (instance.constructor as { new (): T })();
+    Object.assign(copy, instance);
+    return copy;
+}
