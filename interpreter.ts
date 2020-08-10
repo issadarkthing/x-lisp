@@ -1,5 +1,6 @@
 import { Fn, Kind, isValidVarName } from "./ast.ts"
 import { InvalidTypeError } from "./error.ts"
+// @ts-ignore
 import { deepCloneSync } from "https://cdn.jsdelivr.net/gh/motss/deno_mod@v0.10.0/deep_clone/mod.ts"
 
 export function println<T>(value: T) {
@@ -584,9 +585,3 @@ function chunk<T>(arr: T[]) {
 	return chunks;
 }
 
-function clone<T>(instance: T): T {
-	// @ts-ignore
-    const copy = new (instance.constructor as { new (): T })();
-    Object.assign(copy, instance);
-    return copy;
-}
