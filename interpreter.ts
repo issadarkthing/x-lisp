@@ -203,7 +203,6 @@ class Evaluator {
 		}
 
 
-		debugger
 		const evaledArgs = this.evalArgs(val)
 
 		for (const x of evaledArgs) {
@@ -424,21 +423,6 @@ class Evaluator {
 		setqCons.parent = progCons
 		parent.vars.set(fnName, progCons)
 
-
-		// TODO: replace recursive function parent with the actual parent
-		const recursiveFn = (x: Fn) => {
-			x.args.forEach((v) => {
-				if (v instanceof Fn) {
-					if (v.name === "fact") {
-						console.log(v.vars)
-					}
-					recursiveFn(v)
-				}
-			})
-		}
-
-		// recursiveFn(fnBody)
-
 		return new Kind("prog")
 	}
 
@@ -525,7 +509,7 @@ class Evaluator {
 		// TODO
 		// clue: the values passed to the argument change the parent variable
 		
-		// passed arguments
+		// symbols of the defined function
 		const fnArgs = fn.args[0]
 
 		if (fnArgs instanceof Kind)
@@ -534,6 +518,7 @@ class Evaluator {
 		// get identifiers
 		const setKinds = (fnArgs.args as Kind[])
 
+		// evaluate passed argument
 		const vals = this.evalArgs(val)
 		if (vals.some(x => x instanceof Fn))
 			throw new InvalidTypeError("Kind", "Fn");
