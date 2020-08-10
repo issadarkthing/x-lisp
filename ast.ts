@@ -69,7 +69,7 @@ export class Kind {
 			case "cons":
 				if (!Array.isArray(data)) 
 					throw new Error("Unable to construct cons");
-				return data.map((x: any) => new Kind(x))
+				return data;
 			default:
 				if (data == undefined)
 					throw new Error("Invalid type")

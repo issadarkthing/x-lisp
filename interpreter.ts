@@ -1,6 +1,5 @@
 import { Fn, Kind, isValidVarName } from "./ast.ts"
 import { InvalidTypeError } from "./error.ts"
-import cloneDeep from "https://raw.githubusercontent.com/lodash/lodash/master/cloneDeep.js"
 import { deepCloneSync } from "https://cdn.jsdelivr.net/gh/motss/deno_mod@v0.10.0/deep_clone/mod.ts"
 
 export function println<T>(value: T) {
@@ -333,10 +332,6 @@ class Evaluator {
 
 			const symbol = key.data
 			if (typeof symbol === "string" && isValidVarName(symbol)) {
-				// console.log(parent.vars.get(symbol), evaledValue)
-				// if (!parent.vars.has(symbol)) {
-				// 	parent.vars.set(symbol, evaledValue)
-				// }
 				parent.vars.set(symbol, evaledValue)
 			}
 		})
@@ -417,7 +412,6 @@ class Evaluator {
 			throw new Error("Parent scope not found");
 
 
-		// TODO: recursive function should have a parent set to outer scope
 		// recursive function has the same parent as the base function
 		progCons.parent = parent
 		fnBody.parent = progCons

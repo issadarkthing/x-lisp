@@ -6,6 +6,12 @@ function. This is general construct of the language `(name args args)`, the
 first argument inside parenthesis is the function name, and the subsequent is
 the function arguments.
 
+## Installation
+Make sure you have **Deno** installed, if not you can install it [here](https://deno.land/#installation).
+```sh
+$ deno install --allow-read github.com/issadarkthing/x-lisp/xlisp.ts
+```
+
 ## Data types (Kind)
 Two major data type in x-lisp is `Fn` and `Kind`. `Fn` is function type which
 takes at least one argument; the symbol. Everything with the parenthesis
@@ -69,6 +75,7 @@ argument must be an `Fn` that returns a bool `Kind`.
 	(id "so truee")
 	(id "so wrong"))
 ```
-
+Notice the `id` function, it is needed there because it needs to turn `Kind` type
+to `Fn` type.
 
 
