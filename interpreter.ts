@@ -502,12 +502,10 @@ class Evaluator {
 		//		(print b c))
 		//
 
-		// TODO
-		// clue: the values passed to the argument change the parent variable
 		
 		// symbols of the defined function
-
 		const fnArgs = fn.args[0]
+
 
 		if (fnArgs instanceof Kind)
 			throw new InvalidTypeError("Fn", "Kind");
@@ -520,6 +518,7 @@ class Evaluator {
 		if (vals.some(x => x instanceof Fn))
 			throw new InvalidTypeError("Kind", "Fn");
 
+
 		// get evaluated passed arguments
 		const arrKinds = (vals as Kind[])
 
@@ -528,10 +527,6 @@ class Evaluator {
 		fnArgs.args = (combine(setKinds, arrKinds) as Kind[])
 
 		fn.args = (deepCloneSync<Array<Fn | Kind>>(fn.args, { absolute: true }) as Array<Fn | Kind>)
-		// fn = clone<Fn>(fn)
-		// fn.args = clone<Array<Fn | Kind>>(fn.args)
-		// fn.vars = clone<Map<string, Fn | Kind>>(fn.vars)
-		// fn.parent = this.scope.parent
 
 
 		return evalAst(fn)
