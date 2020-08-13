@@ -4,6 +4,8 @@
 ; 	(id 1)
 ; 	(* a (fact (- a 1)))))
 
+; (print (fact 10))
+
 ; (defun adder (# a b)
 ;   (+ a b))
 
@@ -17,10 +19,6 @@
 ; 	  (len (cdr ls) b))))
 
 
-; (defun fib (# x)
-;   (if (<= x 1)
-; 	(id 1)
-; 	(+ (fib (- x 1)) (fib (- x 2)))))
 
 ; (set b (fib 10))
 ; (print (id "=>") b)
@@ -28,11 +26,15 @@
 ; (set a (cons 1 2 3))
 ; (print (len a 0))
 
-(defun len (# ls cnt)
+(defun len (# ls)
   (if (== ls nil)
-	(id cnt)
-	(prog
-	  (set x (+ cnt 1))
-	  (len (cdr ls) x))))
+	(id 0)
+	(+ 1 (len (cdr ls)))))
 
-(print (len (cons 1 2 3) 0))
+
+(defun fib (# x)
+  (if (<= x 1)
+	(id 1)
+	(+ (fib (- x 1)) (fib (- x 2)))))
+
+(print "=>" (len (cons 1 2 3) 0))

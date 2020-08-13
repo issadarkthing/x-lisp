@@ -525,7 +525,6 @@ class Evaluator {
 		// set variables with evaluated arguments
 		// E.g: (# a 1 b 2)
 		fnArgs.args = (combine(setKinds, arrKinds) as Kind[])
-
 		fn.args = (deepCloneSync<Array<Fn | Kind>>(fn.args, { absolute: true }) as Array<Fn | Kind>)
 
 

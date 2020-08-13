@@ -1,7 +1,5 @@
 # X-lisp
-X-lisp is a simple lisp interpreter. One of the goal of this lisp is to improve
-the readability of common lisp. It tries to reduce the number of parenthesis
-and be consistent with the syntax of the language. So far, everything is a 
+X-lisp is a simple lisp interpreter. So far, everything is a 
 function. This is general construct of the language `(name args args)`, the
 first argument inside parenthesis is the function name, and the subsequent is
 the function arguments.
