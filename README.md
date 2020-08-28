@@ -1,7 +1,8 @@
 # X-lisp
 X-lisp is a simple lisp interpreter. So far, everything is a 
-function. This is general construct of the language 
-`(name args args)`, 
+function. 
+
+This is general construct of the language `(name args args)`, 
 the first argument inside parenthesis 
 is the function name, and the subsequent is
 the function arguments.
